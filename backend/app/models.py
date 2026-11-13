@@ -44,3 +44,29 @@ class Rule(Base):
     operator: Mapped[str] = mapped_column(String(32))
     value: Mapped[str] = mapped_column(Text)
     position: Mapped[int] = mapped_column(Integer, default=0)
+
+
+class Segment(Base):
+    __tablename__ = "segments"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    project_id: Mapped[int] = mapped_column(
+        ForeignKey("projects.id", ondelete="CASCADE"), index=True
+    )
+    key: Mapped[str] = mapped_column(String(128), index=True)
+    attribute: Mapped[str] = mapped_column(String(64))
+    operator: Mapped[str] = mapped_column(String(32))
+    value: Mapped[str] = mapped_column(Text)
+
+
+class ScheduledChange(Base):
+    __tablename__ = "scheduled_changes"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    flag_id: Mapped[int] = mapped_column(
+        ForeignKey("flags.id", ondelete="CASCADE"), index=True
+    )
+    apply_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    ramp_to: Mapped[int] = mapped_column(Integer, default=0)
+    ramp_minutes: Mapped[int] = mapped_column(Integer, default=0)
+    applied: Mapped[bool] = mapped_column(Boolean, default=False)
