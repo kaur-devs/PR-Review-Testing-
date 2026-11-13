@@ -4,9 +4,10 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import get_db
-from app.models import Flag, Project, Rule
+from app.models import Flag, Project, Rule, Segment
 from app.services.bucketing import in_rollout
 from app.services.rules import all_rules_match
+from app.services.segments import any_segment_matches, is_member
 
 router = APIRouter()
 
@@ -37,9 +38,31 @@ async def evaluate(
 
     decided = {}
     for flag in flags:
+        segments_result = await db.execute(
+            select(Segment).where(Segment.project_id == project.id)
+        )
+        segments = list(segments_result.scalars().all())
+
+        if not any_segment_matches(segments, body.attributes):
+            decided[flag.key] = False
+            continue
+
         decided[flag.key] = decide(flag, rules_by_flag.get(flag.id, []), body)
 
     return {"user_key": body.user_key, "flags": decided}
+
+
+@router.post("/{project_key}/segments/{segment_key}/check")
+async def check_segment(
+    project_key: str, segment_key: str, body: EvaluateIn,
+    db: AsyncSession = Depends(get_db),
+):
+    """Whether one user is in one segment. Used by the dashboard preview."""
+    segment = await db.scalar(select(Segment).where(Segment.key == segment_key))
+    if not segment:
+        raise HTTPException(status_code=404, detail="Segment not found")
+
+    return {"user_key": body.user_key, "member": is_member(body.attributes, segment)}
 
 
 def decide(flag: Flag, rules: list[Rule], body: EvaluateIn) -> bool:
