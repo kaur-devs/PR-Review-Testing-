@@ -52,3 +52,35 @@ export async function evaluateFor(
   );
   return unwrap<Evaluation>(response);
 }
+
+export interface Schedule {
+  id: number;
+  apply_at: string;
+  ramp_to: number;
+  ramp_minutes: number;
+}
+
+export async function scheduleChange(
+  projectKey: string,
+  flagKey: string,
+  schedule: { apply_at: string; ramp_to: number; ramp_minutes: number },
+): Promise<Schedule> {
+  const response = await fetch(
+    `${API_BASE}/${encodeURIComponent(projectKey)}/flags/${flagKey}/schedule`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(schedule),
+    },
+  );
+  return unwrap<Schedule>(response);
+}
+
+export async function listSchedules(
+  projectKey: string,
+  flagKey: string,
+): Promise<Schedule[]> {
+  const flags = await listFlags(projectKey);
+  const flag = flags.find((candidate) => candidate.key === flagKey);
+  return (flag as any).schedules ?? [];
+}
