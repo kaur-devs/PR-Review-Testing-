@@ -44,3 +44,23 @@ class Rule(Base):
     operator: Mapped[str] = mapped_column(String(32))
     value: Mapped[str] = mapped_column(Text)
     position: Mapped[int] = mapped_column(Integer, default=0)
+
+
+class FlagChange(Base):
+    """One field on one flag changing, once."""
+
+    __tablename__ = "flag_changes"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    flag_id: Mapped[int] = mapped_column(
+        ForeignKey("flags.id", ondelete="CASCADE"), index=True
+    )
+    version: Mapped[int] = mapped_column(Integer, default=1)
+    field: Mapped[str] = mapped_column(String(64))
+    before: Mapped[str] = mapped_column(Text, default="")
+    after: Mapped[str] = mapped_column(Text, default="")
+    actor: Mapped[str] = mapped_column(String(128), default="system")
+    note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    changed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )

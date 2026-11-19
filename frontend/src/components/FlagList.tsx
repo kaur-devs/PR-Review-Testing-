@@ -1,4 +1,5 @@
 import FlagRow from './FlagRow';
+import HistoryPanel from './HistoryPanel';
 import { useFlags } from '../hooks/useFlags';
 
 interface Props {
@@ -15,20 +16,24 @@ export default function FlagList({ projectKey }: Props) {
   }
 
   return (
-    <table className="w-full text-left">
-      <thead>
-        <tr className="border-b border-slate-800 text-xs uppercase text-slate-500">
-          <th className="px-3 py-2 font-medium">Flag</th>
-          <th className="px-3 py-2 font-medium">State</th>
-          <th className="px-3 py-2 font-medium">Rollout</th>
-          <th className="px-3 py-2 font-medium">Targeting</th>
-        </tr>
-      </thead>
-      <tbody>
-        {flags.map((flag) => (
-          <FlagRow key={flag.id} flag={flag} />
-        ))}
-      </tbody>
-    </table>
+    <>
+      <table className="w-full text-left">
+        <thead>
+          <tr className="border-b border-slate-800 text-xs uppercase text-slate-500">
+            <th className="px-3 py-2 font-medium">Flag</th>
+            <th className="px-3 py-2 font-medium">State</th>
+            <th className="px-3 py-2 font-medium">Rollout</th>
+            <th className="px-3 py-2 font-medium">Targeting</th>
+          </tr>
+        </thead>
+        <tbody>
+          {flags.map((flag) => (
+            <FlagRow key={flag.id} flag={flag} />
+          ))}
+        </tbody>
+      </table>
+
+      <HistoryPanel projectKey={projectKey} />
+    </>
   );
 }
