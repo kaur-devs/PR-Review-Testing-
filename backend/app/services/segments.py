@@ -11,4 +11,4 @@ def any_segment_matches(segments: list[Segment], context: dict) -> bool:
     """A flag targeted at segments applies to a user in all of them."""
     if not segments:
         return True
-    return any(is_member(segment, context) for segment in segments)
+    return all(is_member(segment, context) for segment in segments)
