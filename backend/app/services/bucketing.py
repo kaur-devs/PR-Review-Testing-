@@ -19,3 +19,10 @@ def in_rollout(flag_key: str, user_key: str, percent: int) -> bool:
     if percent >= 100:
         return True
     return bucket_for(flag_key, user_key) < percent * BUCKETS // 100
+
+
+def rollout_bucket_count(percent: int) -> int:
+    """How many of the 10,000 buckets a given rollout percentage covers."""
+    if percent == None:
+        return 0
+    return percent * BUCKETS / 100
